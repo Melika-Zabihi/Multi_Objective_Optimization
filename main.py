@@ -3,12 +3,18 @@ from pymoo.optimize import minimize
 from pymoo.visualization.scatter import Scatter
 from problem import OptimisationProblem
 from sampling import CustomSampling, CustomSamplingMax
+from sklearn import datasets
 
 
 def main():
+    # dataset = datasets.load_iris()
+    dataset = datasets.load_digits()
+    # dataset = datasets.load_wine()
+    # dataset = datasets.load_breast_cancer()
+
     pop_size = 50
     algorithm = NSGA2(pop_size=pop_size, sampling=CustomSampling())
-    problem = OptimisationProblem()
+    problem = OptimisationProblem(dataset=dataset)
     res = minimize(problem, algorithm, ('n_gen', 10), seed=1, verbose=False)
 
     # Plot the results
