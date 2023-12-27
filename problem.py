@@ -1,3 +1,4 @@
+import numpy
 from pymoo.core.problem import Problem
 import numpy as np
 from sklearn.metrics import accuracy_score
@@ -12,6 +13,7 @@ class OptimisationProblem(Problem):
         super().__init__(n_var=self.X.shape[1],
                          n_obj=2,
                          n_constr=0,
+                         # n_eq_constr=1,
                          xl=np.zeros(self.X.shape[1]),
                          xu=np.ones(self.X.shape[1]))
         self.counter = 0
@@ -20,7 +22,6 @@ class OptimisationProblem(Problem):
 
         accuracies = []
         zero_weights_count = []
-
         for weights in dataset_weights_list:
             weighted_X = self.X * weights
             X_train, X_test, y_train, y_test = train_test_split(weighted_X,
@@ -32,7 +33,7 @@ class OptimisationProblem(Problem):
 
             y_pred = knn.predict(X_test)
 
-            accuracy = accuracy_score(y_test, y_pred)*100
+            accuracy = accuracy_score(y_test, y_pred) * 100
             zero_weights = np.sum(weights == 0)
 
             accuracies.append(-accuracy)
@@ -44,3 +45,4 @@ class OptimisationProblem(Problem):
         print(zero_weights_count)
 
         out["F"] = np.column_stack([accuracies, zero_weights_count])
+        # out["H"] = np.column_stack([constraint])
