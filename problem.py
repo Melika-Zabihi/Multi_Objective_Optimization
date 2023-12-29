@@ -7,13 +7,16 @@ from knn import KNN
 
 
 class OptimisationProblem(Problem):
-    def __init__(self, dataset, **kwargs):
-        self.X = dataset.data
-        self.y = dataset.target
+    def __init__(self, dataset=None, X=None, y=None, **kwargs):
+        if dataset is not None:
+            self.X = dataset.data
+            self.y = dataset.target
+        else:
+            self.X = X
+            self.y = y
         super().__init__(n_var=self.X.shape[1],
                          n_obj=2,
                          n_constr=0,
-                         # n_eq_constr=1,
                          xl=np.zeros(self.X.shape[1]),
                          xu=np.ones(self.X.shape[1]))
         self.counter = 0
