@@ -2,8 +2,6 @@ import random
 import numpy as np
 from pymoo.core.sampling import Sampling
 
-pop_size = 50
-
 
 class CustomSampling(Sampling):
     def _do(self, problem, n_samples, **kwargs):
