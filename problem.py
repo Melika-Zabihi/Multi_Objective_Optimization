@@ -7,7 +7,7 @@ from knn import KNN
 
 
 class OptimisationProblem(Problem):
-    def __init__(self, dataset=None, X=None, y=None, **kwargs):
+    def __init__(self, dataset=None, X=None, y=None, random_state=0, **kwargs):
         if dataset is not None:
             self.X = dataset.data
             self.y = dataset.target
@@ -20,6 +20,7 @@ class OptimisationProblem(Problem):
                          xl=np.zeros(self.X.shape[1]),
                          xu=np.ones(self.X.shape[1]))
         self.counter = 0
+        self.random_state = random_state
 
     def _evaluate(self, dataset_weights_list, out, *args, **kwargs):
 
@@ -29,8 +30,8 @@ class OptimisationProblem(Problem):
             weighted_X = self.X * weights
             X_train, X_test, y_train, y_test = train_test_split(weighted_X,
                                                                 self.y,
-                                                                test_size=0.2,
-                                                                random_state=42)
+                                                                test_size=0.3,
+                                                                random_state=self.random_state)
             knn = KNN(k=7)
             knn.fit(X_train, y_train)
 
@@ -48,4 +49,3 @@ class OptimisationProblem(Problem):
         print(zero_weights_count)
 
         out["F"] = np.column_stack([accuracies, zero_weights_count])
-        # out["H"] = np.column_stack([constraint])
