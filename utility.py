@@ -6,10 +6,11 @@ from pymoo.optimize import minimize
 from problem import OptimisationProblem
 from sampling import CustomSampling
 from mutation import CustomMutation
+from pymoo.indicators.hv import HV
 import numpy as np
 import enum
 
-pop_size = 50
+pop_size = 30
 n_gen = 10
 
 
@@ -24,7 +25,6 @@ def get_result(dataset=None, X=None, y=None, method=Method.normal, random_state=
         problem = OptimisationProblem(dataset=dataset, random_state=random_state)
     else:
         problem = OptimisationProblem(X=X, y=y, random_state=random_state)
-
     if method == Method.enhanced_mutation:
         algorithm = NSGA2(pop_size=pop_size,
                           sampling=CustomSampling(),
@@ -40,18 +40,25 @@ def get_result(dataset=None, X=None, y=None, method=Method.normal, random_state=
         algorithm = NSGA2(pop_size=pop_size,
                           sampling=CustomSampling())
 
-    res = minimize(problem, algorithm, ('n_gen', 10), seed=1, verbose=False)
-
+    res = minimize(problem, algorithm, ('n_gen', n_gen), seed=1, verbose=False)
     return res
 
 
-def normalize_data(data):
-    # Normalize the first and second elements of data separately
+def calculate_hv(res, res2):
+    res_norm = normalize_data(res)
+    res2_norm = normalize_data(res2)
+    ref_point = np.array([1.1, 1.1])
+    ind = HV(ref_point=ref_point)
+    hv1 = ind(res_norm)
+    hv2 = ind(res2_norm)
+    return hv1, hv2
+
+
+def normalize_data(res):
+    data = res.F
     data_norm = np.empty_like(data)
-    for i in range(data.shape[1]):
-        min_val = np.min(data[:, i])
-        max_val = np.max(data[:, i])
-        data_norm[:, i] = (data[:, i] - min_val) / (max_val - min_val)
+    data_norm[:, 0] = data[:, 0] / 100
+    data_norm[:, 1] = data[:, 1] / res.problem.n_var
     return data_norm
 
 
@@ -62,16 +69,20 @@ class Result:
         self.hv1 = hv1
         self.hv2 = hv2
 
-    def get_max_acc_res1(self):
-        max = 0
+    def get_min_rev_acc_res1(self):
+        min_acc = 100
+        features = 0
         for res in self.res1:
-            if res[0] > max:
-                max = res[0]
-        return max
+            if res[0] <= min_acc:
+                min_acc = res[0]
+                features = res[1]
+        return min_acc, features
 
-    def get_max_acc_res2(self):
-        max = 0
+    def get_min_rev_acc_res2(self):
+        min_acc = 100
+        features = 0
         for res in self.res2:
-            if res[0] > max:
-                max = res[0]
-        return max
+            if res[0] <= min_acc:
+                min_acc = res[0]
+                features = res[1]
+        return min_acc, features

@@ -25,7 +25,7 @@ class OptimisationProblem(Problem):
     def _evaluate(self, dataset_weights_list, out, *args, **kwargs):
 
         accuracies = []
-        zero_weights_count = []
+        weights_count = []
         for weights in dataset_weights_list:
             weighted_X = self.X * weights
             X_train, X_test, y_train, y_test = train_test_split(weighted_X,
@@ -37,15 +37,16 @@ class OptimisationProblem(Problem):
 
             y_pred = knn.predict(X_test)
 
-            accuracy = accuracy_score(y_test, y_pred) * 100
+            reverse_accuracy = (1-accuracy_score(y_test, y_pred)) * 100
             zero_weights = np.sum(weights == 0)
+            remaining_weights = len(weights) - zero_weights
 
-            accuracies.append(-accuracy)
-            zero_weights_count.append(-zero_weights)
+            accuracies.append(reverse_accuracy)
+            weights_count.append(remaining_weights)
 
         print(self.counter)
         self.counter += 1
         print(accuracies)
-        print(zero_weights_count)
+        print(weights_count)
 
-        out["F"] = np.column_stack([accuracies, zero_weights_count])
+        out["F"] = np.column_stack([accuracies, weights_count])
