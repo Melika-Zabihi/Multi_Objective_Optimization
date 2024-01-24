@@ -32,7 +32,8 @@ def mut_pm(X, xl, xu, eta, prob, at_least_once):
 
     if rand.size >= 2:
         rand = (rand - np.min(rand)) / (np.max(rand) - np.min(rand))
-    if rand.size == 1:
+
+    if rand.size == 1 and rand[0] > 1:
         rand[0] = 1
 
     mask = rand <= 0.5
