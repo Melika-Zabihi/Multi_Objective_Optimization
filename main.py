@@ -1,60 +1,40 @@
 from utility import *
 from sklearn import datasets
-import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 def main():
-    run_count = 3
     results = []
+    file_name = "results.txt"
+    run_count = 4
     for i in range(run_count):
-        print("random state:" + str(i * 10))
-        random_state = i * 10
-        res, res2 = get_sklearn_dataset_res(random_state)
-        res_u = np.unique(res.F, axis=0)
-        res2_u = np.unique(res2.F, axis=0)
-        print(res_u)
-        print(res2_u)
+        with open(file_name, 'a') as f:
+            random_state = i * 25
+            res, res2 = get_uci_dataset_res(random_state)
+            res_u = np.unique(res.F, axis=0)
+            res2_u = np.unique(res2.F, axis=0)
+            print(res_u)
+            print(res2_u)
 
-        hv1, hv2 = calculate_hv(res, res2)
-        print("HV Selection", hv1)
-        print("HV Weighting", hv2)
+            hv1, hv2 = calculate_hv(res, res2)
+            print("HV Selection", hv1)
+            print("HV Weighting", hv2)
 
-        fig, ax = plt.subplots()
-        scatter1 = ax.scatter(res_u[:, 0], res_u[:, 1], color="red", label='Selection', alpha=0.6)
-        scatter2 = ax.scatter(res2_u[:, 0], res2_u[:, 1], color="blue", label='Weighting', alpha=0.6)
-        plt.xlabel('100 - Accuracy')
-        plt.ylabel('Remaining Features')
-        plt.legend(handles=[scatter1, scatter2])
-        plt.show()
+            line = "\"" + str(random_state) + "\": {" + " \n"\
+                   + "    \"Res1\":" + str(res_u.tolist()) + ',\n' \
+                    + "    \"Res2\":" +str(res2_u.tolist()) + ',\n' \
+                    + "    \"Hv1\":" + str(hv1) + ',\n' \
+                    + "    \"Hv2\":" + str(hv2) + '\n' + " },"
+
+            f.write(line + '\n')
 
         results.append(Result(res_u, res2_u, hv1=hv1, hv2=hv2))
 
     extract_output(results)
 
 
-def get_sklearn_dataset_res(random_state):
-    dataset = datasets.load_iris()
-    # dataset = datasets.load_digits()
-    # dataset = datasets.load_wine()
-    # dataset = datasets.load_breast_cancer()
-
-    res = get_result(dataset=dataset,
-                     method=Method.normal,
-                     random_state=random_state)
-
-    res2 = get_result(dataset=dataset,
-                      method=Method.enhanced_mutation,
-                      random_state=random_state)
-
-    return res, res2
-
-
 def get_uci_dataset_res(random_state):
-    data = pd.read_csv("dataset\\arrhythmia\\arrhythmia.data", na_values="?")
-    data = data.fillna(value=0)
-
+    data = get_11Tumor_dataset()
     X = data.iloc[:, :-1].to_numpy()
     y = data.iloc[:, -1].to_numpy()
 
@@ -65,8 +45,24 @@ def get_uci_dataset_res(random_state):
 
     res2 = get_result(X=X,
                       y=y,
-                      method=Method.enhanced_mutation,
+                      method=Method.normal,
                       random_state=random_state)
+    return res, res2
+
+def get_sklearn_dataset_res(random_state):
+    dataset = datasets.load_iris()
+    # dataset = datasets.load_digits()
+    # dataset = datasets.load_wine()
+    # dataset = datasets.load_breast_cancer()
+
+    res = get_result(dataset=dataset,
+                     method=Method.selection,
+                     random_state=random_state)
+
+    res2 = get_result(dataset=dataset,
+                      method=Method.normal,
+                      random_state=random_state)
+
     return res, res2
 
 
