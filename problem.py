@@ -32,7 +32,7 @@ class OptimisationProblem(Problem):
                                                                 self.y,
                                                                 test_size=0.3,
                                                                 random_state=self.random_state)
-            knn = KNN(k=7)
+            knn = KNN(k=5)
             knn.fit(X_train, y_train)
 
             y_pred = knn.predict(X_test)
@@ -46,7 +46,5 @@ class OptimisationProblem(Problem):
 
         print(self.counter)
         self.counter += 1
-        print(accuracies)
-        print(weights_count)
 
         out["F"] = np.column_stack([accuracies, weights_count])
