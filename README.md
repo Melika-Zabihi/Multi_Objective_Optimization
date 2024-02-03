@@ -1,4 +1,4 @@
-# Multi Objective Optimisation Project
+# Multi Objective Optimization Project
 
 This repository contains the implementation of a multi-objective optimization project focused on maximizing the accuracy of the model and minimizing the remaining features. The project uses the Non-dominated Sorting Genetic Algorithm II (NSGA2) for optimization and compares the performance of feature selection to feature weighting.
 
