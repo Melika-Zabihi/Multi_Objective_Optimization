@@ -10,8 +10,8 @@ import pandas as pd
 import numpy as np
 import enum
 
-pop_size = 30
-n_gen = 10
+pop_size = 100
+n_gen = 100
 
 
 class Method(enum.Enum):
