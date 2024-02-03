@@ -1,12 +1,12 @@
 from pymoo.algorithms.moo.nsga2 import NSGA2
 from pymoo.operators.crossover.pntx import SinglePointCrossover
 from pymoo.operators.mutation.bitflip import BitflipMutation
-from pymoo.operators.sampling.rnd import BinaryRandomSampling
 from pymoo.optimize import minimize
 from problem import OptimisationProblem
-from sampling import CustomSampling
+from sampling import CustomSampling, CustomSelectionSampling
 from mutation import CustomMutation
 from pymoo.indicators.hv import HV
+import pandas as pd
 import numpy as np
 import enum
 
@@ -32,7 +32,7 @@ def get_result(dataset=None, X=None, y=None, method=Method.normal, random_state=
 
     elif method == Method.selection:
         algorithm = NSGA2(pop_size=pop_size,
-                          sampling=BinaryRandomSampling(),
+                          sampling=CustomSelectionSampling(),
                           crossover=SinglePointCrossover(),
                           mutation=BitflipMutation())
 
@@ -40,7 +40,7 @@ def get_result(dataset=None, X=None, y=None, method=Method.normal, random_state=
         algorithm = NSGA2(pop_size=pop_size,
                           sampling=CustomSampling())
 
-    res = minimize(problem, algorithm, ('n_gen', n_gen), seed=1, verbose=False)
+    res = minimize(problem, algorithm, ('n_gen', n_gen), verbose=False)
     return res
 
 
@@ -60,6 +60,45 @@ def normalize_data(res):
     data_norm[:, 0] = data[:, 0] / 100
     data_norm[:, 1] = data[:, 1] / res.problem.n_var
     return data_norm
+
+
+def get_arrhythmia_dataset():
+    data = pd.read_csv("dataset\\arrhythmia\\arrhythmia.data", header=None, na_values="?")
+    # pre-process
+    max_nan = 0
+    max_nan_col = ''
+    for col in data.columns:
+        nan_count = data[col].isna().sum()
+        if nan_count > max_nan:
+            max_nan = nan_count
+            max_nan_col = col
+
+    data.drop(max_nan_col, axis=1, inplace=True)
+
+    for col in data.columns:
+        if data[col].hasnans:
+            data[col].fillna(data[col].mean(), inplace=True)
+
+    return data
+
+
+def get_movement_dataset():
+    data = pd.read_csv("dataset\\libras+movement\\movement_libras.data", header=None)
+    return data
+
+
+def get_11Tumor_dataset():
+    data = pd.read_csv("dataset\\11Tumor.txt", header=None)
+    return data
+
+
+def get_sonar_dataset():
+    data = pd.read_csv("dataset\\connectionist+bench+sonar+mines+vs+rocks\\"
+                       "sonar.all-data", header=None, na_values="?")
+    # pre-process
+    last_col = data.columns[-1]
+    data[last_col] = data[last_col].replace(['M', 'R'], [0, 1])
+    return data
 
 
 class Result:
