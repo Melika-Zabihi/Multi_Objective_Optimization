@@ -26,7 +26,8 @@ class OptimisationProblem(Problem):
 
         accuracies = []
         weights_count = []
-        for weights in dataset_weights_list:
+        for org_weights in dataset_weights_list:
+            weights = np.where(org_weights <= 0.5, 0, org_weights)
             weighted_X = self.X * weights
             X_train, X_test, y_train, y_test = train_test_split(weighted_X,
                                                                 self.y,
