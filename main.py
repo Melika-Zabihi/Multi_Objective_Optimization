@@ -2,6 +2,7 @@ from utility import *
 from sklearn import datasets
 import numpy as np
 import matplotlib.pyplot as plt
+from random import randint
 
 def main():
     results = []
@@ -9,7 +10,8 @@ def main():
     run_count = 4
     for i in range(run_count):
         with open(file_name, 'a') as f:
-            random_state = i * 25
+            random_state = randint(1, 10000)
+            print("itr:" + str(i) + " random state:" + str(random_state))
             res, res2 = get_uci_dataset_res(random_state)
             res_u = np.unique(res.F, axis=0)
             res2_u = np.unique(res2.F, axis=0)
